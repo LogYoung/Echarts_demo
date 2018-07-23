@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+	<div id="box" style="width: 1000px;height: 400px">
+		
+	</div>
+</body>
+ <script type="text/javascript" src="dist/jquery-2.1.0.js"></script>
+ <script type="text/javascript" src="./dist/echarts.js"></script>
+ <script type="text/javascript">
+ 	 var dom = $("#box")[0]
+ 	 var mychart=echarts.init(dom);
+ 	 var option={}
+ 	 option={
+ 	 	backgroundColor: '#2c343c',
+ 	 	title:{
+ 	 		text:"南丁格尔图",
+ 	 		x:"center",
+ 	 		y:"15px",
+ 	 		textStyle:{
+ 	 			color:"#fff"
+ 	 		}
+ 	 	},
+ 	 	legend:{
+ 	 		textStyle:{
+ 	 			color:"#fff"
+ 	 		}
+ 	 	},
+ 	 	// visualMap: {
+	   //      type: 'continuous',
+	   //      min: 0,
+	   //      max: 100,
+	   //      text:['height','Low'],
+	   //      realtime: true,
+	   //      calculable : true,
+	   //      color: ['orangered','yellow','lightskyblue'],
+	   //      textStyle:{
+	   //      	color:"#fff"
+	   //      }
+	   //  },
+ 	 	tooltip:{
+ 	 		trigger: 'item',
+ 	 		formatter:function(params){
+ 	 			return  params.data.name+"访问量："+params.data.value
+ 	 		}
+ 	 	},
+ 	 	series:[
+ 	 		{//第一组数据
+ 	 			name:"浏览器访问来源",
+ 	 			type:"pie",
+ 	 			radius:"50%",
+ 	 			center:["25%","50%"],
+ 	 			label: {
+                	show: true,
+                	formatter:"{b}访问量：{c}"
+                },
+ 	 			data:[
+ 	 				{value:50,name:"谷歌"},
+ 	 				{value:66,name:"IE"},
+ 	 				{value:48,name:"火狐"},
+ 	 				{value:88,name:"360"},
+ 	 				{value:25,name:"UC"},
+ 	 			].sort(function (a, b) { return a.value - b.value; })		
+
+ 	 		},
+ 	 		{//第二组数据
+ 	 			name:"浏览器访问来源",
+ 	 			type:"pie",
+ 	 			radius:"50%",
+ 	 			center:["60%","50%"],
+ 	 			label: {
+                	show: true,
+                    position: 'right',
+                    formatter: '{b}'
+                },
+ 	 			data:[
+ 	 				{value:88,name:"谷歌"},
+ 	 				{value:66,name:"IE"},
+ 	 				{value:48,name:"火狐"},
+ 	 				{value:88,name:"360"},
+ 	 				{value:25,name:"UC"},
+ 	 			].sort(function (a, b) { return a.value - b.value; }),
+
+ 	 		}
+ 	 	],
+ 	 	roseType: 'radius',  //设置为蓝丁格尔图，
+
+
+ 	 }
+
+ 	 mychart.setOption(option)
+ </script>
+</html>

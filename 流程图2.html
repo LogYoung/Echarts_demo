@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+	<div id="box" style="width: 800px;height: 600px">
+		
+	</div>
+</body>
+ <script type="text/javascript" src="dist/jquery-2.1.0.js"></script>
+ <script type="text/javascript" src="./dist/echarts.js"></script>
+<script type="text/javascript">
+	var data=[
+		{
+		  id:0,
+		  name:"掘金计划",
+		  next_pass:[4],
+		  value:50,
+		 },
+		 {
+		  id:1,
+		  name:"爬山计划",
+		  value:100,
+		  next_pass:[4,6]
+		 },
+		 {
+		  id:2,
+		  name:"看书计划",
+		  value:60,
+		  next_pass:[4,6,7]
+		 },
+		 {
+		  id:3,
+		  value:100,
+		  name:"游泳计划",
+		  next_pass:[9,10]
+		 },
+		{
+		  id:4,
+		  name:"登山计划",
+		  value:55,
+		  next_pass:[8,10]
+		 },
+		{
+		  id:5,
+		  name:"涉水计划",
+		  value:100,
+		  next_pass:[8,9]
+		 },
+		{
+		  id:6,
+		  name:"野炊计划",
+		  value:100,
+		  next_pass:[8,9,10]
+		 },
+		{
+		  id:7,
+		  name:"旅游计划",
+		  value:80,
+		  next_pass:[11]
+		 },
+		{
+		  id:8,
+		  name:"登月计划",
+		  value:60,
+		  next_pass:[11]
+		 },
+		{
+		  id:9,
+		  name:"骑车计划",
+		  value:100,
+		  next_pass:[11]
+		 },
+		{
+		  id:10,
+		  name:"上学计划",
+		  value:100,
+		  next_pass:[12]
+		 },
+		{
+		  id:11,
+		  name:"总结计划",
+		  value:10,
+		  next_pass:[]
+		 }
+		]
+
+	var Alldata = []  //echarts的 data数据
+		data.map(function(data){
+			if(data.next_pass.length==0){
+				var Lastlow={}
+				Lastlow.id=data.id
+				Lastlow.name=data.name
+				Lastlow.value=data.value
+				Lastlow.symbolSize=50
+				Lastlow.y=500
+				Lastlow.x=100
+				if(data.value<100){
+					Lastlow.category=1
+				}else{
+					Lastlow.category=0
+				}
+				Alldata.push(Lastlow)
+			}else{
+				var obj={}
+				obj.id=data.id
+				obj.name=data.name
+				obj.value=data.value
+				obj.symbolSize=50
+				if(data.id/3<1){
+					obj.y=100
+					obj.x=data.id%3*100
+				}else if(data.id/3<=2){
+					obj.y=200
+					obj.x=(Math.round(data.id-3)%4)*(200/3)
+				}else if(data.id/3<=3){
+					obj.y=300
+					obj.x=data.id%3*100
+				}else if(data.id/5==2){
+					obj.y=400
+					obj.x=100
+				}
+				if(data.value<100){
+					obj.category=1
+				}else{
+					obj.category=0
+				}
+				// obj.y=parseInt((data.id/4)+1)*100
+				// obj.x=data.id%4*100
+				Alldata.push(obj)
+			}
+			})
+   
+    var ALLlinks=[]  //echarts links 的数据
+    	data.map(function(data){
+    		for(var i=0;i<data.next_pass.length;i++){
+    			var obj={}
+				obj.source=data.id
+				obj.target=data.next_pass[i]-1
+				ALLlinks.push(obj)
+			}
+    	})
+    var legendata=[{name:"未完成"},{name:"已完成"}]   // legend 的数据
+    console.log(Alldata)
+    console.log(ALLlinks)
+	var option = {
+	    title: {  //表格标题
+	        text: 'Graph 简单示例'  //标题内容
+	    },
+	    width:400,
+	    tooltip: {}, //最外层提示框
+	    legend: [{  //图列组件， 也就是俗称的  组件小点。
+	            // selectedMode: 'single',  //图列选择模式
+	            data: legendata.map(function (a) {   
+	            //图列的数据数组，每一项代表一个系列的name,饼图中可以使用单个数据的name,
+	            //在流程图中需要自行设定需要分成 几个组，如例子分成 ["未完成","已完成"]俩个组
+	                return a.name;
+	            })
+	        }],
+	    visualMap:{  // 视觉映射图 一般也就是指的竖形拉条范围图。
+	    	max:100,  //设置最大值
+	    	min:0,    // 设置最小值
+	    	text:["100%","0%"]  //设置上下的文字
+	    },
+	    series:[  //图标 主体设置
+	            {   // 第一个图标
+	                name: '计划表',  //图表名字
+	                type: 'graph',  //图表类型为 流程图
+	                layout: 'none',  // 布局方式，设置为无，这种情况data中的数据就需要带有X和Y
+	                data: Alldata,   // 图标 data 数据
+	                // 注意事项。如果我们采用了图标组件。那么。我们需要在data数据中增加category数据、
+	                // 通过设置category来控制 此条数据的分组情况。如 这条数据属于列表data中的第一项
+	                // 那么就应该设置 category:0 。同理可推
+	                width:200,       // 图标宽度
+	                links: ALLlinks,  // 流程图中的流程线设置
+	                categories: legendata,  //在流程图设置了legend 图列组件我们就需要设置categories属性
+	                //在series data 中 设置categories为 我们所要匹配的图列内容如下
+	                // [{name:"未完成"},{name:"已完成"}]  可以看见categories 为数组模式。
+	                // 通过设置name来匹配 legend 中的 ["未完成","已完成"]
+	                // 切记。如果要设置流程图的 图列。那么 
+	                //  1.legend 的data  2.series.data 中数据的  category  3.series.category 
+	                //  三点缺一不可
+	                roam: true,  //是否开启鼠标缩放
+	                focusNodeAdjacency: false, //鼠标移动上去是否显示相连的图像
+	                tooltip: { // 图形列表 hover 提示悬浮窗口
+	                        backgroundColor:'red',  
+	                        // formatter:"{b}-完成率:{c}%",
+
+	                 },
+	                itemStyle: {  //图形样式设置
+	                    normal: {  //常规设置
+	                        borderColor: '#fff',  
+	                        borderWidth: 1,
+	                        shadowBlur: 10, //图形阴影的模糊大小。该属性配合 shadowColor,shadowOffsetX, shadowOffsetY 一起设置图形的阴影效果。
+	                        shadowColor: 'rgba(0, 0, 0, 0.3)'  //阴影颜色
+	                    }
+	                },
+	                edgeSymbol: ['circle', 'arrow'],  //俩端标记类型
+	                edgeSymbolSize: [4, 10],   //俩端标记大小
+	                label: {  // series中的label 是指的圆点的提示文字。
+	                	show: true,  //提示文字是否显示
+	                    position: 'right',  //提示文字位置
+	                    formatter: '{b}'  //提示文字内容
+	                },
+	                lineStyle: { //关系边的公用线条样式。其中 lineStyle.color 支持设置为'source'或者'target'特殊值，此时边会自动取源节点或目标节点的颜色作为自己的颜色。
+	                    color: 'source',
+	                    curveness: 0  //设置连接线的弯曲幅度。0-1
+	                },
+	                emphasis: { //高亮的图形样式。 也就是hover
+	                    lineStyle: {
+	                        width: 10,
+	                    }
+
+	                }
+	            }
+	        ]
+	};
+   var dom = $("#box")[0]
+   var mychart=echarts.init(dom)
+   mychart.setOption(option)
+</script>
+</html>

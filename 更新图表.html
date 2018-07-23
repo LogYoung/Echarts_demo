@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+	<div id="box" style="width: 1000px;height: 400px">
+		
+	</div>
+</body>
+ <script type="text/javascript" src="dist/jquery-2.1.0.js"></script>
+ <script type="text/javascript" src="./dist/echarts.js"></script>
+ <script type="text/javascript">
+ 	 var dom = $("#box")[0]
+ 	 var myChart=echarts.init(dom);
+ 	option = {
+    title: { //头部标题
+        text: '动态数据',
+        subtext: '纯属虚构'
+    },
+    tooltip: {  //提示框
+        trigger: 'axis',  //触发类型，坐标轴触发
+        axisPointer: { //坐标轴显示器
+            type: 'cross',  //设置为显示
+            label: {
+                backgroundColor: '#255'
+            }
+        }
+    },
+    legend: { //小图标
+        data:['最新成交价', '预购队列']
+    },
+    toolbox: {  //工具栏工具栏
+        show: true, //显示
+        feature: { //各工具配置项。
+            dataView: {readOnly: false},  //数据视图工具，可以展现当前图表所用的数据，编辑后可以动态更新。
+            restore: {}, //配置项还原。
+            saveAsImage: {}  //下载保存
+        }
+    },
+    dataZoom: {  // 放大缩小条
+        show: false,
+        start: 0,
+        end: 100
+    },
+    xAxis: [
+        {
+            type: 'category',
+            boundaryGap: true,
+            data: (function (){
+                var now = new Date();
+                var res = [];
+                var len = 10;
+                while (len--) {
+                    res.unshift(now.toLocaleTimeString().replace(/^\D*/,''));
+                    now = new Date(now - 2000);
+                }
+                return res;
+            })()
+        },
+        {
+            type: 'category',
+            boundaryGap: true,
+            data: (function (){
+                var res = [];
+                var len = 10;
+                while (len--) {
+                    res.push(10 - len - 1);
+                }
+                return res;
+            })()
+        }
+    ],
+    yAxis: [
+        {
+            type: 'value',
+            scale: true,
+            name: '价格',
+            max: 30,
+            min: 0,
+            boundaryGap: [0.2, 0.2]
+        },
+        {
+            type: 'value',
+            scale: true,
+            name: '预购量',
+            max: 1200,
+            min: 0,
+            boundaryGap: [0.2, 0.2]
+        }
+    ],
+    series: [
+        {
+            name:'预购队列',
+            type:'bar',
+            xAxisIndex: 1,
+            yAxisIndex: 1,
+            data:(function (){
+                var res = [];
+                var len = 10;
+                while (len--) {
+                    res.push(Math.round(Math.random() * 1000));
+                }
+                return res;
+            })()
+        },
+        {
+            name:'最新成交价',
+            type:'line',
+            data:(function (){
+                var res = [];
+                var len = 0;
+                while (len < 10) {
+                    res.push((Math.random()*10 + 5).toFixed(1) - 0);
+                    len++;
+                }
+                return res;
+            })()
+        }
+    ]
+};
+var app={}
+ app.count = 11;
+
+setInterval(function (){
+    axisData = (new Date()).toLocaleTimeString().replace(/^\D*/,'');
+
+    var data0 = option.series[0].data;
+    var data1 = option.series[1].data;
+    data0.shift();
+    data0.push(Math.round(Math.random() * 1000));
+    data1.shift();
+    data1.push((Math.random() * 10 + 5).toFixed(1) - 0);
+
+    option.xAxis[0].data.shift();
+    option.xAxis[0].data.push(axisData);
+    option.xAxis[1].data.shift();
+    option.xAxis[1].data.push(app.count++);
+
+    myChart.setOption(option);
+}, 2100);
+
+ 	 myChart.setOption(option)
+ </script>
+</html>

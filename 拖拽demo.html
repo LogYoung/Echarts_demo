@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		
+	</title>
+
+</head>
+<body>
+
+	<div id="box" style="width: 600px;height: 600px">
+		
+	</div>
+</body>
+ <script type="text/javascript" src="dist/jquery-2.1.0.js"></script>
+ <script type="text/javascript" src="./dist/echarts.js"></script>
+ <script type="text/javascript">
+ 	var dom = document.getElementById("box");
+	var myChart = echarts.init(dom);
+ 	var symbolSize = 20;
+	// 这个 data 变量在这里单独声明，在后面也会用到。
+	var data = [[15, 0], [-50, 10], [-56.5, 20], [-46.5, 30], [-22.1, 40]];
+	myChart.setOption({
+	    xAxis: {
+	        min: -100,
+	        max: 80,
+	        type: 'value',
+	        axisLine: {onZero: false}  //坐标轴轴线相关设置。设置轴线是否在0刻度上
+	    },
+	    dataZoom: [
+	        {
+	            type: 'slider',
+	            xAxisIndex: 0,
+	            filterMode: 'empty'
+	        },
+	        {
+	            type: 'slider',
+	            yAxisIndex: 0,
+	            filterMode: 'empty'
+	        },
+	        {
+	            type: 'inside',
+	            xAxisIndex: 0,
+	            filterMode: 'empty'
+	        },
+	        {
+	            type: 'inside',
+	            yAxisIndex: 0,
+	            filterMode: 'empty'
+	        }
+	    ],
+	    yAxis: {
+	        min: -30,
+	        max: 60,
+	        type: 'value',
+	        axisLine: {onZero: false}  
+	    },
+	    visualMap: {   //是视觉映射组件，用于进行『视觉编码』，也就是将数据映射到视觉元素（视觉通道）
+	        min: -150,   //右边的 树形拉条，也就是数据映射组件，设置最小值
+	        max: 200,  //设置映射最大值
+	        calculable: true,  //是否启用托条
+	        inRange: {  //定义 在选中范围中 的视觉元素。 可以设置颜色。类型。透明度等
+	            color: ['#50a3ba', '#eac736', 'red']  //设置视觉元素颜色
+	        },
+	        textStyle: { //设置组件的文字样式
+	            color: 'red'  
+	        }
+	    },
+	    tooltip: { //提示框设置
+	        trigger: 'item',  //触发类型    item 数据项图形触发，主要在散点图，饼图等无类目轴的图表中使用。
+	                        //'axis'    坐标轴触发，主要在柱状图，折线图等会使用类目轴的图表中使用。
+	                        //'none'    什么都不触发
+	        formatter: function (params) {  // hover触发的 提示框文本内容,params 是当前选中的图形内容
+	            return params.data[0]+"/"+params.data[1];
+	        }
+	    },
+	    series: [  //配置
+	        {
+	            id: 'a', //图形列表id号
+	            type: 'line',
+	            smooth: true,   //设置是否为平滑取曲线设置。
+	            symbolSize: symbolSize*2, // 为了方便拖拽，把 symbolSize 尺寸设大了。
+	            data: data  
+	        }
+	    ]
+	});
+    myChart.on('dataZoom', updatePosition); //监听视角拖动
+	window.addEventListener('resize', updatePosition);  //浏览器窗口调整
+	myChart.setOption({  //这个是在图表中申明多个图形元素，通过graphic来设置。
+    // 声明一个 graphic component，里面有若干个 type 为 'circle' 的 graphic elements。
+    // 这里使用了 echarts.util.map 这个帮助方法，其行为和 Array.prototype.map 一样，但是兼容 es5 以下的环境。
+    // 用 map 方法遍历 data 的每项，为每项生成一个圆点。
+    graphic: echarts.util.map(data, function (dataItem, dataIndex) { //通过map遍历 data从而生成
+        return {
+            // 'circle' 表示这个 graphic element 的类型是圆点。
+            type: 'circle',  //设置图片元素的类型
+
+            shape: {
+                // 圆点的半径。
+                r: symbolSize / 2
+            },
+            // 用 transform 的方式对圆点进行定位。position: [x, y] 表示将圆点平移到 [x, y] 位置。
+            // 这里使用了 convertToPixel 这个 API 来得到每个圆点的位置，下面介绍。
+            position: myChart.convertToPixel('grid', dataItem),
+
+            // 这个属性让圆点不可见（但是不影响他响应鼠标事件）。
+            invisible: false,
+            // 这个属性让圆点可以被拖拽。
+            draggable: true,
+            // 把 z 值设得比较大，表示这个圆点在最上方，能覆盖住已有的折线图的圆点。 z-index
+            z: 100,
+            // 此圆点的拖拽的响应事件，在拖拽过程中会不断被触发。下面介绍详情。
+            // 这里使用了 echarts.util.curry 这个帮助方法，意思是生成一个与 onPointDragging
+            // 功能一样的新的函数，只不过第一个参数永远为此时传入的 dataIndex 的值。
+            ondrag: echarts.util.curry(onPointDragging, dataIndex)
+        };
+
+    })
+
+});
+	// myChart.convertFromPixel  这个为 myChart.convertToPixel 的逆向方法，
+	// myChart.convertToPixel 是把data数值变成坐标轴定位。
+	// myChart.convertFromPixel 是把坐标轴定位变成data数值
+	 // 拖拽某个圆点的过程中会不断调用此函数。
+	// 此函数中会根据拖拽后的新位置，改变 data 中的值，并用新的 data 值，重绘折线图，从而使折线图同步于被拖拽的隐藏圆点。
+	function onPointDragging(dataIndex) {
+	    // 这里的 data 就是本文最初的代码块中声明的 data，在这里会被更新。
+	    // 这里的 this 就是被拖拽的圆点。this.position 就是圆点当前的位置。
+	    data[dataIndex] = myChart.convertFromPixel('grid', this.position);
+	    // 用更新后的 data，重绘折线图。
+	    myChart.setOption({
+	        series: [{
+	            id: 'a',  //改变图形列表的id
+	            data: data
+	        }]
+	    });
+	}
+     function updatePosition() {  //监听的是当缩放的时候重新设置远点的位置
+	    // 对每个拖拽圆点重新计算位置，并用 setOption 更新。
+	    myChart.setOption({
+	        graphic: echarts.util.map(data, function (item, dataIndex) {
+	            return {
+	                position: myChart.convertToPixel('grid', item)
+	            };
+	        })
+	    });
+	}
+ </script>
+</html>

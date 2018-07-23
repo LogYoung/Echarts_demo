@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		
+	</title>
+</head>
+<body>
+	<div id="box" style="width: 800px;height: 600px">
+		
+	</div>
+</body>
+ <script type="text/javascript" src="dist/jquery-2.1.0.js"></script>
+ <script type="text/javascript" src="./dist/echarts.js"></script>
+ <script type="text/javascript">
+	var axisData = ['周一','周二','周三','很长很长的周四','周五','周六','周日'];
+	var data = axisData.map(function (item, i) {
+	    return Math.round(Math.random() * 1000 * (i + 1));
+	});
+	var links = data.map(function (item, i) {
+	    return {
+	        source: i,
+	        target: i + 1
+	    };
+	});
+	console.log(data)
+	links.pop();
+	console.log(links)
+option = {
+    title: {
+        text: '笛卡尔坐标系上的 Graph'
+    },
+    tooltip: {},
+    xAxis: [{  //设置笛卡尔坐标
+	        type : 'category',  //坐标类型  'value' 数值轴，适用于连续数据。
+				// 'category' 类目轴，适用于离散的类目数据，为该类型时必须通过 data 设置类目数据。
+				// 'time' 时间轴，适用于连续的时序数据，与数值轴相比时间轴带有时间的格式化，在刻度计算上也有所不同，例如会根据跨度的范围来决定使用月，星期，日还是小时范围的刻度。
+				// 'log' 对数轴。适用于对数数据。
+	        boundaryGap : false, //是否开启留白。可以[10%,20%] 填写
+	        nameRotate:50,  //标题旋转度数
+	        axisLine:{
+	        	show:true,
+	        },
+	        axisTick:{
+	        	interval:0
+	        },
+	        axisLabel:{
+	        	interval:0,
+	        	rotate:50,
+	        },
+	        data : axisData
+	    },
+	    {  //设置笛卡尔坐标
+	        type : 'category',  //坐标类型  'value' 数值轴，适用于连续数据。
+				// 'category' 类目轴，适用于离散的类目数据，为该类型时必须通过 data 设置类目数据。
+				// 'time' 时间轴，适用于连续的时序数据，与数值轴相比时间轴带有时间的格式化，在刻度计算上也有所不同，例如会根据跨度的范围来决定使用月，星期，日还是小时范围的刻度。
+				// 'log' 对数轴。适用于对数数据。
+	        boundaryGap : false,
+	        name:"头部坐标",
+	        position:"top",
+	        nameRotate:50,
+	        axisLine:{
+	        	show:true,
+	        },
+	        axisTick:{
+	        	interval:0
+	        },
+	        axisLabel:{
+	        	interval:0
+	        },
+	        data : axisData
+	    }
+    ],
+    yAxis: {
+        type : 'value'
+    },
+    series: [
+        {
+            type: 'graph',
+            layout: 'none',
+            coordinateSystem: 'cartesian2d',
+            symbolSize: 40,
+            label: {
+                normal: {
+                    show: true
+                }
+            },
+            edgeSymbol: ['circle', 'arrow'],
+            edgeSymbolSize: [4, 10],
+            data: data,
+            links: links,
+            lineStyle: {
+                normal: {
+                    color: '#2f4554'
+                }
+            }
+        }
+    ]
+};
+
+   var dom = $("#box")[0]
+   var mychart=echarts.init(dom)
+   mychart.setOption(option)
+</script>
+</html>
